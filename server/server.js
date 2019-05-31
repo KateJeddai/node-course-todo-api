@@ -1,3 +1,5 @@
+require('./config/config.js');
+
 const _ = require('lodash');
 
 const {mongoose} = require('./db/mongoose');
@@ -10,7 +12,7 @@ const {User} = require('./models/user');
 const {ObjectID} = require('mongodb');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 app.use(bodyParser.json())
 
@@ -79,9 +81,8 @@ app.patch('/todos/:id', (req, res) => {
         if(!todo) {
         	return res.status(404).send();
         }
-
         res.send({todo});
-        
+
     }).catch(e => res.status(400).send());
 })
 
