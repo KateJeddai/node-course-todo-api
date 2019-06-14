@@ -19,6 +19,7 @@ describe('POST todos', () => {
 
          request(app)
             .post('/todos')
+            .set('x-auth', users[0].tokens[0].token)
             .send({text})
             .expect(200)
             .expect((res) => {
@@ -40,6 +41,7 @@ describe('POST todos', () => {
 	it('should not create todo with invalid body data', (done) => {
         request(app)
            .post('/todos')
+           .set('x-auth', users[0].tokens[0].token)
            .send({})
            .expect(400)
            .end((err, res) => {
@@ -61,18 +63,20 @@ describe('GET todos', () => {
   it('should get all todos', (done) => {
     request(app)
       .get('/todos')
+      .set('x-auth', users[0].tokens[0].token)
       .expect(200)
       .expect((res) => {
-        expect(res.body.todos.length).toBe(2);
+        expect(res.body.todos.length).toBe(1);
       })
       .end(done);
-  })
+  }) 
 })
 
 describe('GET todo by id', () => {
   it('should get todo by ID', (done) => {
       request(app)
          .get(`/todos/${todos[0]._id.toHexString()}`) 
+         .set('x-auth', users[0].tokens[0].token)
          .expect(200)
          .expect((res) => {
             expect(res.body.text).toBe(todos[0].text);
@@ -80,10 +84,19 @@ describe('GET todo by id', () => {
          .end(done);
   })
 
+  it('should not get todo created by other user', (done) => {
+      request(app)
+         .get(`/todos/${todos[1]._id.toHexString()}`) 
+         .set('x-auth', users[0].tokens[0].token)
+         .expect(404)
+         .end(done);
+  })
+
   it('should return 404 if ID is not found', (done) => {
       var fakeId = new ObjectID().toHexString();
       request(app)
          .get(`/todos/${fakeId}`)
+         .set('x-auth', users[0].tokens[0].token)
          .expect(404)
          .end(done);
   })
@@ -92,6 +105,7 @@ describe('GET todo by id', () => {
       var fakeId = new ObjectID().toHexString();
       request(app)
          .get(`/todos/123`)
+         .set('x-auth', users[0].tokens[0].token)
          .expect(404)
          .end(done);
   })
